@@ -1,0 +1,5 @@
+{
+  "NODE_ENV": "development",
+  "PORT": "10090",
+  "SECRET_PATH": "/home/secret/mbi_secretkey.ini"
+}

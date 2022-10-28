@@ -1,0 +1,53 @@
+version: "3.2"
+services:
+  es:
+    image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
+    ports:
+      - ${ES_PORT}:9200
+    environment:
+      - ES_JAVA_OPTS=-Xmx2g -Xms2g
+      - node.name=es
+      - cluster.name=test-cluster
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - xpack.license.self_generated.type=basic
+      - TZ=asia/seoul
+    volumes:
+      - es-volume:/usr/share/elasticsearch/data
+  kibana:
+    depends_on:
+      - es
+    image: docker.elastic.co/kibana/kibana:${STACK_VERSION}
+    ports:
+      - ${KIBANA_PORT}:5601
+    environment:
+      - SERVERNAME=kibana
+      - ELASTICSEARCH_HOSTS=http://es:9200
+      - ELASTICSEARCH_USERNAME=kibana_system
+      - TZ=asia/seoul
+  mysql:
+    image: mysql:5.7.38
+    ports:
+      - ${MYSQL_PORT}:3306
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ALLOW_EMPTY_PASSWORD: "no"
+      TZ: "asia/seoul"
+    volumes:
+      - ./resource/mysql-init-0.sql:/docker-entrypoint-initdb.d/mysql-init-0.sql
+  redis:
+    image: redis:7.0.2
+    ports:
+      - ${REDIS_PORT}:6379
+    environment:
+      TZ: "asia/seoul"
+    volumes:
+      - redis-volume:/data
+volumes:
+  es-volume:
+    driver: local
+  redis-volume:
+    driver: local
